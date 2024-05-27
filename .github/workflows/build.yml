@@ -39,6 +39,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE
         npm i
+        git config --system core.longpaths true
         git clone https://github.com/WebKit/webkit.git
         git checkout 8715d40f1d7038e9f43619d153210883228d17a6
         cd webkit
@@ -69,6 +70,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE
         npm i
+        git config --system core.longpaths true
         git clone https://github.com/WebKit/webkit.git
         git checkout 8715d40f1d7038e9f43619d153210883228d17a6
         cd webkit
@@ -106,6 +108,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE
         npm i
+        git config --system core.longpaths true
         git clone https://github.com/WebKit/webkit.git
         git checkout 8715d40f1d7038e9f43619d153210883228d17a6
         cd webkit
