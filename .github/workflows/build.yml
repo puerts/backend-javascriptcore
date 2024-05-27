@@ -1,0 +1,157 @@
+name: build javascriptcore
+
+on: 
+  workflow_dispatch:
+    inputs:
+      tag_date:
+        description: 'tag date'     
+        required: true
+      build_windows:
+        description: 'Build for Windows platform'
+        type: boolean
+        default: true
+        required: false
+      build_macos:
+        description: 'Build for MacOS platform'
+        type: boolean
+        default: true
+        required: false
+      build_linux:
+        description: 'Build for Linux platform'
+        type: boolean
+        default: true
+        required: false
+      do_publish:
+        description: 'Publish a release'
+        type: boolean
+        default: true
+        required: false
+  
+
+jobs:
+  build_linux:
+    if: github.event.inputs.build_linux == 'true'
+    name: Linux
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run build script
+      run: |
+        cd $GITHUB_WORKSPACE
+        npm i
+        git clone https://github.com/WebKit/webkit.git
+        git checkout 8715d40f1d7038e9f43619d153210883228d17a6
+        cd webkit
+        perl Tools/Scripts/build-jsc --jsc-only
+        mkdir -p ~/jsc_bin/jsc/include
+        mkdir -p ~/jsc_bin/jsc/lib/linux64
+        cp -r Source/bmalloc/bmalloc ~/jsc_bin/jsc/include/
+        cp -r Source/WTF/wtf ~/jsc_bin/jsc/include/
+        cp -r Source/WTF/icu/unicode ~/jsc_bin/jsc/include/
+        cp -r WebKitBuild/JSCOnly/Release/JavaScriptCore/Headers/JavaScriptCore ~/jsc_bin/jsc/include/
+        cp -r WebKitBuild/JSCOnly/Release/JavaScriptCore/PrivateHeaders/JavaScriptCore/* ~/jsc_bin/jsc/include/JavaScriptCore/
+        cp $GITHUB_WORKSPACE/misc/cmakeconfig.h ~/jsc_bin/jsc/include/JavaScriptCore/cmakeconfig.h
+        cp WebKitBuild/JSCOnly/Release/cmakeconfig.h ~/jsc_bin/jsc/include/JavaScriptCore/cmakeconfig_linux64.h
+        cp WebKitBuild/JSCOnly/Release/lib/libJavaScriptCore.so* ~/jsc_bin/jsc/lib/linux64
+    - uses: actions/upload-artifact@v2
+      with:
+        name: jsc_bin
+        path: ~/jsc_bin/**/*
+
+  build_windows:
+    if: github.event.inputs.build_windows == 'true'
+    name: Windows
+    runs-on: windows-2019
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run build script
+      shell: cmd
+      run: |
+        cd %GITHUB_WORKSPACE%
+        npm i
+        git clone https://github.com/WebKit/webkit.git
+        git checkout 8715d40f1d7038e9f43619d153210883228d17a6
+        cd webkit
+        node %WORKSPACE%\node-script\do-gitpatch.js -p %WORKSPACE%\patchs\webkit_vc_compile_for_8715d40f1d7038e9f43619d153210883228d17a6.patch
+        perl Tools\Scripts\build-jsc
+        
+    - name: copy
+      shell: bash
+      run: |
+        cd $GITHUB_WORKSPACE
+        mkdir -p ~/jsc_bin/jsc/include/JavaScriptCore
+        mkdir -p ~/jsc_bin/jsc/lib/win64
+        cp WebKitBuild/Release/cmakeconfig.h ~/jsc_bin/jsc/include/JavaScriptCore/cmakeconfig_win64.h
+        cp WebKitBuild/Release/lib64/* ~/jsc_bin/jsc/lib/win64/
+        cp WebKitBuild/Release/bin64/icudt75* ~/jsc_bin/jsc/lib/win64/
+        cp WebKitBuild/Release/bin64/icuin75* ~/jsc_bin/jsc/lib/win64/
+        cp WebKitBuild/Release/bin64/icuuc75* ~/jsc_bin/jsc/lib/win64/
+        cp WebKitBuild/Release/bin64/JavaScriptCore* ~/jsc_bin/jsc/lib/win64/
+        cp WebKitBuild/Release/bin64/WTF* ~/jsc_bin/jsc/lib/win64/
+    - uses: actions/upload-artifact@v2
+      with:
+        name: jsc_bin
+        path: ~/jsc_bin/**/*
+        
+  build_macos:
+    if: github.event.inputs.build_macos == 'true'
+    name: macOS
+    runs-on: macos-11
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run build script
+      run: |
+        cd $GITHUB_WORKSPACE
+        npm i
+        git clone https://github.com/WebKit/webkit.git
+        git checkout 8715d40f1d7038e9f43619d153210883228d17a6
+        cd webkit
+        perl Tools/Scripts/build-jsc --jsc-only
+        mkdir -p ~/jsc_bin/jsc/include/JavaScriptCore
+        mkdir -p ~/jsc_bin/jsc/lib/osx
+        cp WebKitBuild/JSCOnly/Release/cmakeconfig.h ~/jsc_bin/jsc/include/JavaScriptCore/cmakeconfig_mac.h
+        cp -r WebKitBuild/JSCOnly/Release/lib/JavaScriptCore.framework ~/jsc_bin/jsc/lib/osx
+    - uses: actions/upload-artifact@v2
+      with:
+        name: jsc_bin
+        path: ~/jsc_bin/**/*
+        
+  publish:
+    if: github.event.inputs.do_publish == 'true'
+    runs-on: ubuntu-20.04
+    needs: [build_linux,build_windows,build_macos]
+    steps:
+      - uses: actions/download-artifact@v1
+        with:
+          name: jsc_bin
+          path: jsc_bin/
+          
+      - name: Create Release Asset
+        run: |
+          cd jsc_bin/ && tar cvfz ../jsc_bin_${{github.event.inputs.tag_date}}.tgz jsc_bin && cd -
+          
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: jsc_bin_${{ github.event.inputs.tag_date }}
+          release_name: jsc_bin_${{ github.event.inputs.tag_date }}
+          draft: false
+          prerelease: false
+          
+      - name: Upload jscore bin
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./jsc_bin_${{github.event.inputs.tag_date}}.tgz
+          asset_name: jsc_bin_${{github.event.inputs.tag_date}}.tgz
+          asset_content_type: application/tgz
+          
+
+
+
+  
