@@ -64,12 +64,20 @@ jobs:
     runs-on: windows-2019
     steps:
     - uses: actions/checkout@v2
+    - name: prebuild
+      shell: bash
+      run: |
+        cd $GITHUB_WORKSPACE
+        npm i
+        git clone https://github.com/WebKit/webkit.git
+        git checkout 8715d40f1d7038e9f43619d153210883228d17a6
+        cd webkit
+        node $GITHUB_WORKSPACE/node-script/do-gitpatch.js -p $GITHUB_WORKSPACE/patchs/webkit_vc_compile_for_8715d40f1d7038e9f43619d153210883228d17a6.patch
     - name: Run build script
       shell: cmd
       run: |
         cd %GITHUB_WORKSPACE%
-        npm i
-        call .\windows_64.cmd
+        perl Tools\Scripts\build-jsc
     - name: copy
       shell: bash
       run: |
