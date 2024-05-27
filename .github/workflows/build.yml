@@ -39,9 +39,9 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE
         npm i
-        git config --system core.longpaths true
+        sudo git config --system core.longpaths true
         git clone https://github.com/WebKit/webkit.git
-        git checkout 8715d40f1d7038e9f43619d153210883228d17a6
+        git checkout 8715d40f1d70
         cd webkit
         perl Tools/Scripts/build-jsc --jsc-only
         mkdir -p ~/jsc_bin/jsc/include
@@ -72,7 +72,7 @@ jobs:
         npm i
         git config --system core.longpaths true
         git clone https://github.com/WebKit/webkit.git
-        git checkout 8715d40f1d7038e9f43619d153210883228d17a6
+        git checkout 8715d40f1d70
         cd webkit
         node $GITHUB_WORKSPACE/node-script/do-gitpatch.js -p $GITHUB_WORKSPACE/patchs/webkit_vc_compile_for_8715d40f1d7038e9f43619d153210883228d17a6.patch
     - name: Run build script
@@ -108,9 +108,9 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE
         npm i
-        git config --system core.longpaths true
+        sudo git config --system core.longpaths true
         git clone https://github.com/WebKit/webkit.git
-        git checkout 8715d40f1d7038e9f43619d153210883228d17a6
+        git checkout 8715d40f1d70
         cd webkit
         perl Tools/Scripts/build-jsc --jsc-only
         mkdir -p ~/jsc_bin/jsc/include/JavaScriptCore
