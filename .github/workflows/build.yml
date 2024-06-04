@@ -50,8 +50,7 @@ jobs:
     runs-on: windows-2019
     steps:
     - uses: actions/checkout@v2
-    - name: prebuild
-      shell: bash
+    - name: Run build script
       run: |
         cd $GITHUB_WORKSPACE
         call .\win64.cmd
