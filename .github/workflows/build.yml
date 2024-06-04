@@ -53,7 +53,7 @@ jobs:
     - name: Run build script
       run: |
         cd $GITHUB_WORKSPACE
-        call .\win64.cmd
+        .\win64.bat
     - uses: actions/upload-artifact@v2
       with:
         name: jsc_bin
