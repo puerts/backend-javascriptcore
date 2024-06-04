@@ -55,6 +55,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE
         .\win64.bat
+    - uses: actions/upload-artifact@v2
       with:
         name: jsc_bin
         path: $GITHUB_WORKSPACE/jsc_bin/**/*
