@@ -34,6 +34,13 @@ jobs:
     name: Linux
     runs-on: ubuntu-20.04
     steps:
+    - name: Install LibC++
+      run: |
+        sudo apt-get update
+        sudo apt-get install clang
+        sudo apt-get install build-essential
+        sudo apt-get install libc++-dev
+        sudo apt-get install libc++abi-dev
     - uses: actions/checkout@v2
     - name: Run build script
       run: |
