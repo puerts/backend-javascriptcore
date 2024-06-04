@@ -52,7 +52,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Run build script
       run: |
-        cd $GITHUB_WORKSPACE
+        cd %GITHUB_WORKSPACE%
         .\win64.bat
     - uses: actions/upload-artifact@v2
       with:
