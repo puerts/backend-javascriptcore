@@ -12,7 +12,7 @@ if [ ! -d "webkit" ]; then
 fi
 echo =====[ build jsc ]=====
 cd webkit
-perl Tools/Scripts/build-jsc --jsc-only
+perl Tools/Scripts/build-webkit --jsc-only  --verbose
 mkdir -p $(dirname $0)/jsc_bin/jsc/include/JavaScriptCore
 mkdir -p $(dirname $0)/jsc_bin/jsc/lib/osx
 cp WebKitBuild/JSCOnly/Release/cmakeconfig.h $(dirname $0)/jsc_bin/jsc/include/JavaScriptCore/cmakeconfig_mac.h

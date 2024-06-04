@@ -64,6 +64,7 @@ jobs:
         choco install -y xampp-81 python311 ruby git cmake gperf llvm ninja
         python -m pip install pywin32
         gem install webrick
+    - uses: ilammy/msvc-dev-cmd@v1
     - name: Run build script
       shell: cmd
       run: |
