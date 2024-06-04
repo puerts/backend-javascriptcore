@@ -38,26 +38,11 @@ jobs:
     - name: Run build script
       run: |
         cd $GITHUB_WORKSPACE
-        npm i
-        sudo git config --system core.longpaths true
-        git clone https://github.com/WebKit/webkit.git
-        git reset --hard 8715d40f1d70
-        cd webkit
-        perl Tools/Scripts/build-jsc --jsc-only
-        mkdir -p ~/jsc_bin/jsc/include
-        mkdir -p ~/jsc_bin/jsc/lib/linux64
-        cp -r Source/bmalloc/bmalloc ~/jsc_bin/jsc/include/
-        cp -r Source/WTF/wtf ~/jsc_bin/jsc/include/
-        cp -r Source/WTF/icu/unicode ~/jsc_bin/jsc/include/
-        cp -r WebKitBuild/JSCOnly/Release/JavaScriptCore/Headers/JavaScriptCore ~/jsc_bin/jsc/include/
-        cp -r WebKitBuild/JSCOnly/Release/JavaScriptCore/PrivateHeaders/JavaScriptCore/* ~/jsc_bin/jsc/include/JavaScriptCore/
-        cp $GITHUB_WORKSPACE/misc/cmakeconfig.h ~/jsc_bin/jsc/include/JavaScriptCore/cmakeconfig.h
-        cp WebKitBuild/JSCOnly/Release/cmakeconfig.h ~/jsc_bin/jsc/include/JavaScriptCore/cmakeconfig_linux64.h
-        cp WebKitBuild/JSCOnly/Release/lib/libJavaScriptCore.so* ~/jsc_bin/jsc/lib/linux64
+        bash ./linux64.sh
     - uses: actions/upload-artifact@v2
       with:
         name: jsc_bin
-        path: ~/jsc_bin/**/*
+        path: $GITHUB_WORKSPACE/jsc_bin/**/*
 
   build_windows:
     if: github.event.inputs.build_windows == 'true'
@@ -69,34 +54,10 @@ jobs:
       shell: bash
       run: |
         cd $GITHUB_WORKSPACE
-        npm i
-        git config --system core.longpaths true
-        git clone https://github.com/WebKit/webkit.git
-        git reset --hard 8715d40f1d70
-        cd webkit
-        node $GITHUB_WORKSPACE/node-script/do-gitpatch.js -p $GITHUB_WORKSPACE/patchs/webkit_vc_compile_for_8715d40f1d7038e9f43619d153210883228d17a6.patch
-    - name: Run build script
-      shell: cmd
-      run: |
-        cd %GITHUB_WORKSPACE%
-        perl Tools\Scripts\build-jsc
-    - name: copy
-      shell: bash
-      run: |
-        cd $GITHUB_WORKSPACE
-        mkdir -p ~/jsc_bin/jsc/include/JavaScriptCore
-        mkdir -p ~/jsc_bin/jsc/lib/win64
-        cp WebKitBuild/Release/cmakeconfig.h ~/jsc_bin/jsc/include/JavaScriptCore/cmakeconfig_win64.h
-        cp WebKitBuild/Release/lib64/* ~/jsc_bin/jsc/lib/win64/
-        cp WebKitBuild/Release/bin64/icudt75* ~/jsc_bin/jsc/lib/win64/
-        cp WebKitBuild/Release/bin64/icuin75* ~/jsc_bin/jsc/lib/win64/
-        cp WebKitBuild/Release/bin64/icuuc75* ~/jsc_bin/jsc/lib/win64/
-        cp WebKitBuild/Release/bin64/JavaScriptCore* ~/jsc_bin/jsc/lib/win64/
-        cp WebKitBuild/Release/bin64/WTF* ~/jsc_bin/jsc/lib/win64/
-    - uses: actions/upload-artifact@v2
+        .\win64.bat
       with:
         name: jsc_bin
-        path: ~/jsc_bin/**/*
+        path: $GITHUB_WORKSPACE/jsc_bin/**/*
         
   build_macos:
     if: github.event.inputs.build_macos == 'true'
@@ -107,20 +68,11 @@ jobs:
     - name: Run build script
       run: |
         cd $GITHUB_WORKSPACE
-        npm i
-        sudo git config --system core.longpaths true
-        git clone https://github.com/WebKit/webkit.git
-        git reset --hard 8715d40f1d70
-        cd webkit
-        perl Tools/Scripts/build-jsc --jsc-only
-        mkdir -p ~/jsc_bin/jsc/include/JavaScriptCore
-        mkdir -p ~/jsc_bin/jsc/lib/osx
-        cp WebKitBuild/JSCOnly/Release/cmakeconfig.h ~/jsc_bin/jsc/include/JavaScriptCore/cmakeconfig_mac.h
-        cp -r WebKitBuild/JSCOnly/Release/lib/JavaScriptCore.framework ~/jsc_bin/jsc/lib/osx
+        bash ./osx64.sh
     - uses: actions/upload-artifact@v2
       with:
         name: jsc_bin
-        path: ~/jsc_bin/**/*
+        path: $GITHUB_WORKSPACE/jsc_bin/**/*
         
   publish:
     if: github.event.inputs.do_publish == 'true'
