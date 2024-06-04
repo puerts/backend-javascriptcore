@@ -2,6 +2,7 @@
 
 npm i
 if [ ! -d "webkit" ]; then
+    sudo git config --system core.longpaths true
     git clone https://github.com/WebKit/webkit.git
     cd webkit
     git reset --hard 8715d40f1d70
