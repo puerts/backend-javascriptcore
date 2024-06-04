@@ -12,7 +12,7 @@ if [ ! -d "webkit" ]; then
 fi
 echo =====[ build jsc ]=====
 cd webkit
-perl Tools/Scripts/build-jsc --jsc-only
+perl Tools/Scripts/build-webkit --jsc-only --cmakeargs="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
 mkdir -p $(dirname $0)/jsc_bin/jsc/include
 mkdir -p $(dirname $0)/jsc_bin/jsc/lib/linux64
 cp -r Source/bmalloc/bmalloc $(dirname $0)/jsc_bin/jsc/include/
