@@ -32,7 +32,7 @@ jobs:
   build_linux:
     if: github.event.inputs.build_linux == 'true'
     name: Linux
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - name: Install LibC++
       run: |
@@ -44,12 +44,11 @@ jobs:
     - uses: actions/checkout@v2
     - name: Run build script
       run: |
-        cd $GITHUB_WORKSPACE
         bash ./linux64.sh
     - uses: actions/upload-artifact@v2
       with:
         name: jsc_bin
-        path: $GITHUB_WORKSPACE/jsc_bin/**/*
+        path: jsc_bin/**/*
 
   build_windows:
     if: github.event.inputs.build_windows == 'true'
@@ -68,27 +67,25 @@ jobs:
     - name: Run build script
       shell: cmd
       run: |
-        cd %GITHUB_WORKSPACE%
         .\win64.bat
     - uses: actions/upload-artifact@v2
       with:
         name: jsc_bin
-        path: $GITHUB_WORKSPACE/jsc_bin/**/*
+        path: jsc_bin/**/*
         
   build_macos:
     if: github.event.inputs.build_macos == 'true'
     name: macOS
-    runs-on: macos-11
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
     - name: Run build script
       run: |
-        cd $GITHUB_WORKSPACE
         bash ./osx64.sh
     - uses: actions/upload-artifact@v2
       with:
         name: jsc_bin
-        path: $GITHUB_WORKSPACE/jsc_bin/**/*
+        path: jsc_bin/**/*
         
   publish:
     if: github.event.inputs.do_publish == 'true'
