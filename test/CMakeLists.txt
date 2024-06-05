@@ -83,7 +83,7 @@ elseif ( APPLE )
          -fno-rtti
          -O3
          -DNDEBUG
-         -mmacosx-version-min=14.4
+         # -mmacosx-version-min=14.4
          -fPIE
          -fvisibility=hidden
          -fvisibility-inlines-hidden
