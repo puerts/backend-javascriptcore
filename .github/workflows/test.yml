@@ -29,8 +29,11 @@ jobs:
     runs-on: windows-2019
     steps:
     - uses: actions/checkout@v2
+    - uses: msys2/setup-msys2@v2
+      with:
+        update: true
     - name: Install Deps
-      shell: bash
+      shell: msys2 {0}
       run: |
         cd test
         bash ./prepare_deps.sh
@@ -51,6 +54,7 @@ jobs:
     - name: Run build script
       run: |
         sudo xcode-select -switch "/Applications/Xcode_15.2.app"
+        cd test
         bash ./prepare_deps.sh
         bash ./make_osx.sh
         ./build_osx/Release/perf
