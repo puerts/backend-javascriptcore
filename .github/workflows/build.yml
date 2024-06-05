@@ -100,7 +100,7 @@ jobs:
           
       - name: Create Release Asset
         run: |
-          cd jsc_bin/ && tar cvfz ../jsc_bin_${{github.event.inputs.tag_date}}.tgz jsc && cd -
+          cd jsc_bin/ && tar cvfz ../jsc_bin.tgz jsc && cd -
           
       - name: Create Release
         id: create_release
@@ -119,8 +119,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./jsc_bin_${{github.event.inputs.tag_date}}.tgz
-          asset_name: jsc_bin_${{github.event.inputs.tag_date}}.tgz
+          asset_path: ./jsc_bin.tgz
+          asset_name: jsc_bin.tgz
           asset_content_type: application/tgz
           
 
