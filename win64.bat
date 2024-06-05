@@ -15,9 +15,9 @@ if not exist %~dp0jsc_bin\jsc\include\JavaScriptCore mkdir %~dp0jsc_bin\jsc\incl
 if not exist %~dp0jsc_bin\jsc\lib\win64 mkdir %~dp0jsc_bin\jsc\lib\win64
 copy WebKitBuild\Release\cmakeconfig.h %~dp0jsc_bin\jsc\include\JavaScriptCore\cmakeconfig_win64.h
 copy WebKitBuild\Release\lib64\* %~dp0jsc_bin\jsc\lib\win64\
-copy WebKitBuild\Release\bin64\icudt75* %~dp0jsc_bin\jsc\lib\win64\
-copy WebKitBuild\Release\bin64\icuin75* %~dp0jsc_bin\jsc\lib\win64\
-copy WebKitBuild\Release\bin64\icuuc75* %~dp0jsc_bin\jsc\lib\win64\
+copy WebKitLibraries\win\bin64\icudt75* %~dp0jsc_bin\jsc\lib\win64\
+copy WebKitLibraries\win\bin64\icuin75* %~dp0jsc_bin\jsc\lib\win64\
+copy WebKitLibraries\win\bin64\icuuc75* %~dp0jsc_bin\jsc\lib\win64\
 copy WebKitBuild\Release\bin64\JavaScriptCore* %~dp0jsc_bin\jsc\lib\win64\
 copy WebKitBuild\Release\bin64\WTF* %~dp0jsc_bin\jsc\lib\win64\
 cd ..
