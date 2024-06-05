@@ -1,6 +1,13 @@
 #!/bin/bash
 [ -z "$WORKSPACE" ] && WORKSPACE="$( cd "$( dirname "$0" )"/.. && pwd )"
 
+mkdir abc
+cd abc
+ls $WORKSPACE
+ls $WORKSPACE/misc
+ls $WORKSPACE/misc/cmakeconfig.h
+cd ..
+
 npm i
 if [ ! -d "webkit" ]; then
     sudo git config --system core.longpaths true
