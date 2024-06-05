@@ -45,7 +45,7 @@ jobs:
         
   test_macos:
     name: macOS
-    runs-on: macos-13 #macos-latest/macos-14 is arm64
+    runs-on: macos-13 #macos-latest/macos-14 is arm64 https://github.com/actions/runner-images
     steps:
     - uses: actions/checkout@v2
     - name: Run build script
