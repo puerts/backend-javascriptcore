@@ -18,7 +18,7 @@ mkdir -p $WORKSPACE/jsc_bin/jsc/lib/linux64
 cp -r Source/bmalloc/bmalloc $WORKSPACE/jsc_bin/jsc/include/
 cp -r Source/WTF/wtf $WORKSPACE/jsc_bin/jsc/include/
 cp -r Source/WTF/icu/unicode $WORKSPACE/jsc_bin/jsc/include/
-cp -r Source/JavaScriptCore/config.h $WORKSPACE/jsc_bin/jsc/include/
+cp -r Source/JavaScriptCore/config.h $WORKSPACE/jsc_bin/jsc/include/JavaScriptCore/
 cp -r WebKitBuild/JSCOnly/Release/JavaScriptCore/Headers/JavaScriptCore $WORKSPACE/jsc_bin/jsc/include/
 cp -r WebKitBuild/JSCOnly/Release/JavaScriptCore/PrivateHeaders/JavaScriptCore/* $WORKSPACE/jsc_bin/jsc/include/JavaScriptCore/
 cp $WORKSPACE/misc/cmakeconfig.h $WORKSPACE/jsc_bin/jsc/include/JavaScriptCore/cmakeconfig.h
