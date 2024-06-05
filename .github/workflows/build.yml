@@ -76,7 +76,7 @@ jobs:
   build_macos:
     if: github.event.inputs.build_macos == 'true'
     name: macOS
-    runs-on: macos-14-large #macos-latest/macos-14-xlarge is arm64
+    runs-on: macos-14 #macos-latest/macos-14-xlarge is arm64
     steps:
     - uses: actions/checkout@v2
     - name: Run build script
