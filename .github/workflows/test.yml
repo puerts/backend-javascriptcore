@@ -1,0 +1,58 @@
+name: test javascriptcore
+
+on: 
+  workflow_dispatch:
+  
+
+jobs:
+  test_linux:
+    name: Linux
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install LibC++
+      run: |
+        sudo apt-get update
+        sudo apt-get install clang
+        sudo apt-get install build-essential
+        sudo apt-get install libc++-dev
+        sudo apt-get install libc++abi-dev
+    - uses: actions/checkout@v2
+    - name: Run Test
+      run: |
+        cd test
+        bash ./prepare_deps.sh
+        bash ./make_linux64.sh
+        ./build_linux64/perf
+
+  test_windows:
+    name: Windows
+    runs-on: windows-2019
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Deps
+      shell: bash
+      run: |
+        cd test
+        bash ./prepare_deps.sh
+    - uses: ilammy/msvc-dev-cmd@v1
+    - name: Run build script
+      shell: cmd
+      run: |
+        cd test
+        .\make_win64.bat
+        .\build_win\Release\perf.exe
+        
+        
+  test_macos:
+    name: macOS
+    runs-on: macos-13 #macos-latest/macos-14 is arm64
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run build script
+      run: |
+        sudo xcode-select -switch "/Applications/Xcode_15.2.app"
+        bash ./prepare_deps.sh
+        bash ./make_osx.sh
+        ./build_osx/Release/perf
+
+  
