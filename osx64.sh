@@ -1,17 +1,5 @@
 #!/bin/bash
-pwd
-[ -z "$WORKSPACE" ] && WORKSPACE="$( cd "$( dirname "$0" )"/.. && pwd )"
-pwd
-echo "$WORKSPACE"
-echo "$GITHUB_WORKSPACE"
-
-mkdir abc
-cd abc
-pwd
-ls $WORKSPACE
-ls $WORKSPACE/misc
-ls $WORKSPACE/misc/cmakeconfig.h
-cd ..
+[ -z "$WORKSPACE" ] && WORKSPACE="$( cd "$( dirname "$0" )" && pwd )"
 
 npm i
 if [ ! -d "webkit" ]; then
