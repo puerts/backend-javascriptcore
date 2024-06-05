@@ -3,6 +3,7 @@
 
 mkdir abc
 cd abc
+pwd
 ls $WORKSPACE
 ls $WORKSPACE/misc
 ls $WORKSPACE/misc/cmakeconfig.h
