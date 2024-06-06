@@ -62,6 +62,7 @@ int main() {
     JSStringRef functionName = JSStringCreateWithUTF8CString("PublicApiAdd");
     JSObjectRef functionObject = JSObjectMakeFunctionWithCallback(context, functionName, PublicApiAddCallback);
     JSObjectSetProperty(context, JSContextGetGlobalObject(context), functionName, functionObject, kJSPropertyAttributeNone, NULL);
+    JSStringRelease(functionName);
     functionName = JSStringCreateWithUTF8CString("print");
     functionObject = JSObjectMakeFunctionWithCallback(context, functionName, PrintCallback);
     JSObjectSetProperty(context, JSContextGetGlobalObject(context), functionName, functionObject, kJSPropertyAttributeNone, NULL);
@@ -83,12 +84,68 @@ int main() {
         }
         print(`private elapsed = ${Date.now() - start}`);
         
+        function JsAdd(a, b) {
+            print(`a=${a}, b=${b}`);
+            return a + b;
+        }
         )delimiter");
     JSStringRef file = JSStringCreateWithUTF8CString("");
-    JSValueRef exception;
+    JSValueRef exception = nullptr;
     JSValueRef value = JSEvaluateScript(context, code, 0, file, 1, &exception);
     
-    if (!value) {
+    if (!exception) {
+        JSStringRelease(functionName);
+        functionName = JSStringCreateWithUTF8CString("JsAdd");
+        JSValueRef function = JSObjectGetProperty(context, JSContextGetGlobalObject(context), functionName, NULL);
+        
+        { // call by public api
+            JSValueRef args[2];
+            args[0] = JSValueMakeNumber(context, 1); // a
+            args[1] = JSValueMakeNumber(context, 2); // b
+
+            JSValueRef exception = NULL;
+            value = JSObjectCallAsFunction(context, (JSObjectRef)function, NULL, 2, args, &exception);
+            if (!exception) {
+                double sum = JSValueToNumber(context, value, NULL);
+                printf("Result(public): %f\n", sum);
+            }
+        }
+        
+        if (!exception) { // private api
+            JSC::JSValue funcValue = toJS(function);
+            auto callData = JSC::getCallData(funcValue);
+            if (UNLIKELY(callData.type == JSC::CallData::Type::None)) {
+                fprintf(stderr, "callData.type == JSC::CallData::Type::None\n");
+                return 0;
+            }
+            
+            //JSObject* jsThisObject = globalObject->globalThis();
+            JSC::MarkedArgumentBuffer args;
+            //args.ensureCapacity(2);
+            args.append(JSC::JSValue(1));
+            //RETURN_IF_EXCEPTION(scope, { });
+            args.append(JSC::JSValue(2));
+            if (UNLIKELY(args.hasOverflowed())) {
+                fprintf(stderr, "args.hasOverflowed()\n");
+                return 0;
+            }
+            //RETURN_IF_EXCEPTION(scope, { });
+            
+            auto scope = DECLARE_THROW_SCOPE(vm);
+            //JSValue jsResult = profiledCall(globalObject, ProfilingReason::API, funcValue, callData, jsThisObject, args);
+            JSValue jsResult = call(globalObject, funcValue, callData, jsUndefined(), args);
+            //RETURN_IF_EXCEPTION(scope, { });
+            if (UNLIKELY(scope.exception())) {
+                exception = toRef(globalObject, scope.exception()->value());
+                scope.clearException();
+            } else if (jsResult.isNumber()) {
+                double sum = jsResult.asNumber();
+                printf("Result(private): %f\n", sum);
+            }
+        }
+    }
+    
+    if (exception) {
         assert(JSValueIsString(context, exception));
         JSStringRef exceptionString = JSValueToStringCopy(context, exception, NULL);
         size_t max_size = JSStringGetMaximumUTF8CStringSize(exceptionString);
@@ -104,6 +161,7 @@ int main() {
     JSStringRelease(file);
     
     JSGlobalContextRelease(context);
+    (void)value;
 
     return 0;
 }
