@@ -8,6 +8,7 @@
 //#include <JavaScriptCore/JSObject.h>
 //#include <JavaScriptCore/JSArray.h>
 #include <JavaScriptCore/APICast.h>
+#include <chrono>
 
 using namespace JSC;
 
@@ -76,16 +77,16 @@ int main() {
         for(var i = 0; i < LOOP; ++i) {
             PublicApiAdd(1, 2)
         }
-        print(`public elapsed = ${Date.now() - start}`);
+        print(`js call native (public) elapsed = ${Date.now() - start}`);
         
         var start = Date.now();
         for(var i = 0; i < LOOP; ++i) {
             PrivateApiAdd(1, 2)
         }
-        print(`private elapsed = ${Date.now() - start}`);
+        print(`js call native (private) elapsed = ${Date.now() - start}`);
         
         function JsAdd(a, b) {
-            print(`a=${a}, b=${b}`);
+            //print(`a=${a}, b=${b}`);
             return a + b;
         }
         )delimiter");
@@ -93,12 +94,14 @@ int main() {
     JSValueRef exception = nullptr;
     JSValueRef value = JSEvaluateScript(context, code, 0, file, 1, &exception);
     
+    const int LOOP = 1000 * 1000 * 100;
     if (!exception) {
         JSStringRelease(functionName);
         functionName = JSStringCreateWithUTF8CString("JsAdd");
         JSValueRef function = JSObjectGetProperty(context, JSContextGetGlobalObject(context), functionName, NULL);
         
-        { // call by public api
+        auto start = std::chrono::high_resolution_clock::now();
+        for(int i = 0; i < LOOP; ++i) { // call by public api
             JSValueRef args[2];
             args[0] = JSValueMakeNumber(context, 1); // a
             args[1] = JSValueMakeNumber(context, 2); // b
@@ -107,11 +110,22 @@ int main() {
             value = JSObjectCallAsFunction(context, (JSObjectRef)function, NULL, 2, args, &exception);
             if (!exception) {
                 double sum = JSValueToNumber(context, value, NULL);
-                printf("Result(public): %f\n", sum);
+                //printf("Result(public): %f\n", sum);
+                (void)sum;
             }
         }
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start);
         
-        if (!exception) { // private api
+        printf("native call js (public) elapsed = %d\n", (int)(duration.count() / 1000));
+        
+        start = std::chrono::high_resolution_clock::now();
+        
+        if (exception) {
+            fprintf(stderr, "call js public throw \n");
+            return 0;
+        }
+        
+        for(int i = 0; i < LOOP; ++i) { // private api
             JSC::JSValue funcValue = toJS(function);
             auto callData = JSC::getCallData(funcValue);
             if (UNLIKELY(callData.type == JSC::CallData::Type::None)) {
@@ -140,9 +154,14 @@ int main() {
                 scope.clearException();
             } else if (jsResult.isNumber()) {
                 double sum = jsResult.asNumber();
-                printf("Result(private): %f\n", sum);
+                //printf("Result(private): %f\n", sum);
+                (void)sum;
             }
         }
+        
+        duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start);
+        
+        printf("native call js (private) elapsed = %d\n", (int)(duration.count() / 1000));
     }
     
     if (exception) {
